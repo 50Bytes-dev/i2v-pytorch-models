@@ -44,11 +44,13 @@ COPY --from=builder /usr/lib/${CHIPSET_ARCH}/liblzma* /usr/lib/${CHIPSET_ARCH}/
 
 ENV APP_PORT=8080
 
+ENV APP_TIMEOUT=5
+
 # Get the shell back so we can run an entrypoint script or command.
 # A little sacrilegious for distroless but we primarily care about CVEs.
 COPY --from=builder /bin/sh /bin/
 
 USER 3000
 
-ENTRYPOINT ["/bin/bash"]
-CMD ["-c", "uvicorn app:app --host 0.0.0.0 --port ${APP_PORT} --timeout-keep-alive ${APP_TIMEOUT:-5}"]
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["uvicorn app:app --host 0.0.0.0 --port $APP_PORT --timeout-keep-alive $APP_TIMEOUT"]
