@@ -8,10 +8,6 @@ RUN pip install --upgrade pip setuptools
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
-ARG MODEL_NAME
-COPY download_model.py .
-RUN ./download_model.py
-
 COPY . .
 
 # Put models in a predictable location
