@@ -13,8 +13,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# https://huggingface.co/google/vit-base-patch16-224
-MODEL_NAME = "google/vit-base-patch16-224"
+# https://huggingface.co/google/vit-base-patch16-224-in21k
+MODEL_NAME = "google/vit-base-patch16-224-in21k"
 
 
 class Img2VecViT:

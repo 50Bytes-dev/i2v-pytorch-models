@@ -2,5 +2,5 @@ __pycache__
 req.json
 req2.json
 
-venv
+.venv
 s3_images
