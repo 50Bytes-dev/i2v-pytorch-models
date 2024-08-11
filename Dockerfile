@@ -21,5 +21,7 @@ ENV APP_PORT=8080
 
 ENV APP_TIMEOUT=5
 
-ENTRYPOINT ["/bin/sh", "-c"]
+ENV OMP_NUM_THREADS=1
+
+ENTRYPOINT ["/bin/bash", "-c"]
 CMD ["uvicorn app:app --host 0.0.0.0 --port 8080 --port $APP_PORT --timeout-keep-alive $APP_TIMEOUT"]

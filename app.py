@@ -2,7 +2,9 @@ import os
 from logging import getLogger
 from fastapi import FastAPI, Response, status
 from vectorizer import ImageVectorizer, VectorImagePayload
+import torch.multiprocessing as mp
 
+mp.set_start_method("spawn", force=True)
 
 app = FastAPI()
 imgVec: ImageVectorizer
@@ -22,7 +24,7 @@ def startup_event():
         cuda_core = os.getenv("CUDA_CORE")
         if cuda_core is None or cuda_core == "":
             cuda_core = "cuda:0"
-        logger.info(f"CUDA_CORE set to {cuda_core}")
+        logger.info(f"CUDA_CORE set to {cuda_core}. 1 worker = ~1.5GB of GPU memory")
     else:
         logger.info("Running on CPU")
 
@@ -42,6 +44,8 @@ def read_item(item: VectorImagePayload, response: Response):
         vector = imgVec.vectorize(item.id, item.image)
         return {"id": item.id, "vector": vector.tolist(), "dim": len(vector)}
     except Exception as e:
-        logger.exception("Something went wrong while vectorizing data.")
+        logger.exception(
+            f"Something went wrong while vectorizing data. Error: {str(e)}"
+        )
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": str(e)}

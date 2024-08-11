@@ -1,4 +1,5 @@
 # pytorch image to vector (for Weaviate)
+
 The inference container for the img2vec module
 
 ## Documentation
@@ -12,7 +13,13 @@ LOCAL_REPO="img2vec-pytorch" MODEL_NAME="resnet50" ./cicd/build.sh
 ```
 
 ## Build with distroless base
+
 Swap `linux/amd64` with `linux/arm64` for arm-based builds
+
 ```
 docker buildx build --platform linux/amd64 -t [url]/image-2-vector:[tag] -f Dockerfile.distroless --push .
 ```
+
+## Thread error
+
+export OMP_NUM_THREADS=1
