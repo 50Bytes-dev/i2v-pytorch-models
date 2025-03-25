@@ -1,0 +1,15 @@
+[project]
+name = "i2v-pytorch-models"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "datasets>=3.4.1",
+    "fastapi>=0.115.12",
+    "ipykernel>=6.29.5",
+    "pillow>=11.1.0",
+    "torch>=2.6.0",
+    "transformers>=4.50.0",
+    "uvicorn>=0.34.0",
+]

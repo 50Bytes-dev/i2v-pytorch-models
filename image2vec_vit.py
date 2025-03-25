@@ -13,8 +13,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# https://huggingface.co/google/vit-base-patch16-224-in21k
-MODEL_NAME = "google/vit-base-patch16-224-in21k"
+# https://huggingface.co/SoBytes/vit-sadovod
+MODEL_NAME = "SoBytes/vit-sadovod"
 
 
 class Img2VecViT:
@@ -30,24 +30,28 @@ class Img2VecViT:
                 "Only ViT models with hidden size of 768 are supported at the moment"
             )
 
-        self.model = self.model.to(self.device)
+        self.model = self.model.to(self.device)  # type: ignore
         self.model.eval()
 
         self.processor = ViTImageProcessor.from_pretrained(MODEL_NAME)
         self.lock = threading.Lock()
 
-    def get_vec(self, image_path):
-        img = Image.open(image_path).convert("RGB")
+    def _get_inputs(self, image: Image.Image):
+        rgb_image = image.convert("RGB")
         """
         If one of the image dimensions is 1 or 3 it can confuse the `infer_channel_dimension_format` function
         in the `Transformers` library, so we set the input_data_format to 'channels_last' in that case.
         """
         input_data_format = (
-            "channels_last" if img.width in (1, 3) or img.height in (1, 3) else None
+            "channels_last"
+            if rgb_image.width in (1, 3) or rgb_image.height in (1, 3)
+            else None
         )
         try:
             inputs = self.processor(
-                images=img, return_tensors="pt", input_data_format=input_data_format
+                images=rgb_image,
+                return_tensors="pt",
+                input_data_format=input_data_format,
             )
         except ValueError:
             """
@@ -60,14 +64,21 @@ class Img2VecViT:
                 "Unable to infer color channel format, defaulting to 'channels_first'"
             )
             inputs = self.processor(
-                images=img, return_tensors="pt", input_data_format="channels_first"
+                images=rgb_image,
+                return_tensors="pt",
+                input_data_format="channels_first",
             )
 
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
+
+        return inputs
+
+    def get_vec(self, image: Image.Image):
+        inputs = self._get_inputs(image)
 
         with self.lock:
             with torch.no_grad():
                 outputs = self.model(**inputs)
                 features = outputs.last_hidden_state.mean(dim=1)
 
-        return features.cpu().numpy()[0]
+        return features.detach().numpy()[0]

@@ -1,6 +1,8 @@
 import base64
-import os
+from io import BytesIO
 
+from PIL import Image
+import numpy as np
 from pydantic import BaseModel
 
 from image2vec_vit import Img2VecViT
@@ -17,27 +19,22 @@ class ImageVectorizer:
     def __init__(self, cuda_support, cuda_core):
         self.img2vec = Img2VecViT(cuda_support, cuda_core)
 
-    def vectorize(self, id: str, image: str):
+    def vectorize(self, image_base64: str) -> np.ndarray:
         try:
-            filepath = self.saveImage(id, image)
-            return self.img2vec.get_vec(filepath)
+            image = self.base64_to_pillow(image_base64)
+            if image is None:
+                raise ValueError("Invalid image data")
+            return self.img2vec.get_vec(image)
         except (RuntimeError, TypeError, NameError, Exception) as e:
             print("vectorize error:", e)
             raise e
         finally:
-            self.removeFile(filepath)
+            del image
 
-    def saveImage(self, id: str, image: str):
+    def base64_to_pillow(self, image_base64: str):
         try:
-            filepath = id
-            file_content = base64.b64decode(image)
-            with open(filepath, "wb") as f:
-                f.write(file_content)
-            return filepath
+            file_content = base64.b64decode(image_base64)
+            return Image.open(BytesIO(file_content))
         except Exception as e:
             print(str(e))
-            return ""
-
-    def removeFile(self, filepath: str):
-        if os.path.exists(filepath):
-            os.remove(filepath)
+            return None

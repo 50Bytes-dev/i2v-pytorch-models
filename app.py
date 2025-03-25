@@ -7,13 +7,13 @@ import torch.multiprocessing as mp
 mp.set_start_method("spawn", force=True)
 
 app = FastAPI()
-imgVec: ImageVectorizer
+img_vec: ImageVectorizer
 logger = getLogger("uvicorn")
 
 
 @app.on_event("startup")
 def startup_event():
-    global imgVec
+    global img_vec
 
     cuda_env = os.getenv("ENABLE_CUDA")
     cuda_support = False
@@ -28,7 +28,7 @@ def startup_event():
     else:
         logger.info("Running on CPU")
 
-    imgVec = ImageVectorizer(cuda_support, cuda_core)
+    img_vec = ImageVectorizer(cuda_support, cuda_core)
 
 
 @app.get("/.well-known/live", response_class=Response)
@@ -41,7 +41,7 @@ def live_and_ready(response: Response):
 @app.post("/vectors/")
 def read_item(item: VectorImagePayload, response: Response):
     try:
-        vector = imgVec.vectorize(item.id, item.image)
+        vector = img_vec.vectorize(item.image)
         return {"id": item.id, "vector": vector.tolist(), "dim": len(vector)}
     except Exception as e:
         logger.exception(
