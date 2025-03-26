@@ -3,6 +3,7 @@ from logging import getLogger
 from fastapi import FastAPI, Response, status
 from vectorizer import ImageVectorizer, VectorImagePayload
 import torch.multiprocessing as mp
+import uvicorn
 
 mp.set_start_method("spawn", force=True)
 
@@ -39,9 +40,9 @@ def live_and_ready(response: Response):
 
 @app.post("/vectors")
 @app.post("/vectors/")
-def read_item(item: VectorImagePayload, response: Response):
+async def read_item(item: VectorImagePayload, response: Response):
     try:
-        vector = img_vec.vectorize(item.image)
+        vector = await img_vec.vectorize(item.image)
         return {"id": item.id, "vector": vector.tolist(), "dim": len(vector)}
     except Exception as e:
         logger.exception(
@@ -49,3 +50,7 @@ def read_item(item: VectorImagePayload, response: Response):
         )
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": str(e)}
+
+
+if __name__ == "__main__":
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, workers=os.cpu_count())

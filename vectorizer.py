@@ -19,7 +19,7 @@ class ImageVectorizer:
     def __init__(self, cuda_support, cuda_core):
         self.img2vec = Img2VecViT(cuda_support, cuda_core)
 
-    def vectorize(self, image_base64: str) -> np.ndarray:
+    async def vectorize(self, image_base64: str) -> np.ndarray:
         try:
             image = self.base64_to_pillow(image_base64)
             if image is None:

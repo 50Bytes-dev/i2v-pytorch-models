@@ -1,9 +1,14 @@
 import logging
+import os
 import threading
 
 import torch
 from PIL import Image
 from transformers import ViTImageProcessor, ViTModel
+
+hf_home = os.getenv("HF_HOME", None)
+if hf_home:
+    os.makedirs(hf_home, exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -21,7 +26,10 @@ class Img2VecViT:
     def __init__(self, cuda_support, cuda_core):
         self.device = torch.device(cuda_core if cuda_support else "cpu")
 
-        self.model = ViTModel.from_pretrained(MODEL_NAME)
+        self.model = ViTModel.from_pretrained(
+            MODEL_NAME,
+            cache_dir=hf_home,
+        )
 
         self.layer_output_size = self.model.config.hidden_size
 
@@ -33,10 +41,13 @@ class Img2VecViT:
         self.model = self.model.to(self.device)  # type: ignore
         self.model.eval()
 
-        self.processor = ViTImageProcessor.from_pretrained(MODEL_NAME)
+        self.processor = ViTImageProcessor.from_pretrained(
+            MODEL_NAME,
+            cache_dir=hf_home,
+        )
         self.lock = threading.Lock()
 
-    def _get_inputs(self, image: Image.Image):
+    def _process_inputs(self, image: Image.Image):
         rgb_image = image.convert("RGB")
         """
         If one of the image dimensions is 1 or 3 it can confuse the `infer_channel_dimension_format` function
@@ -74,7 +85,7 @@ class Img2VecViT:
         return inputs
 
     def get_vec(self, image: Image.Image):
-        inputs = self._get_inputs(image)
+        inputs = self._process_inputs(image)
 
         with self.lock:
             with torch.no_grad():
