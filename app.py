@@ -43,7 +43,7 @@ def live_and_ready(response: Response):
 async def read_item(item: VectorImagePayload, response: Response):
     try:
         vector = await img_vec.vectorize(item.image)
-        return {"id": item.id, "vector": vector.tolist(), "dim": len(vector)}
+        return {"vector": vector.tolist(), "dim": len(vector)}
     except Exception as e:
         logger.exception(
             f"Something went wrong while vectorizing data. Error: {str(e)}"

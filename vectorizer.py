@@ -9,7 +9,6 @@ from image2vec_vit import Img2VecViT
 
 
 class VectorImagePayload(BaseModel):
-    id: str
     image: str
 
 
