@@ -53,4 +53,4 @@ async def read_item(item: VectorImagePayload, response: Response):
 
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, workers=os.cpu_count())
+    uvicorn.run("app:app", host="0.0.0.0", port=8085, workers=os.cpu_count())
