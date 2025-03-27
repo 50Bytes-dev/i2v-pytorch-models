@@ -92,4 +92,4 @@ class Img2VecViT:
                 outputs = self.model(**inputs)
                 features = outputs.last_hidden_state.mean(dim=1)
 
-        return features.detach().numpy()[0]
+        return features.detach().cpu().numpy()[0]
