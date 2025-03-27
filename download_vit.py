@@ -1,6 +1,8 @@
 import os
 from transformers import ViTModel, ViTImageProcessor
-from image2vec_vit import MODEL_NAME
+
+# https://huggingface.co/SoBytes/vit-sadovod
+MODEL_NAME = "SoBytes/vit-sadovod"
 
 hf_home = os.getenv("HF_HOME", None)
 if hf_home:

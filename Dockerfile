@@ -17,9 +17,11 @@ ENV HF_HOME=/app/models \
     OMP_NUM_THREADS=1 \
     HUGGING_FACE_HUB_TOKEN=$HF_TOKEN
 
-COPY app.py vectorizer.py image2vec_vit.py download_vit.py ./
+COPY download_vit.py ./
 
 RUN python download_vit.py && unset HF_TOKEN && unset HUGGING_FACE_HUB_TOKEN
+
+COPY app.py vectorizer.py image2vec_vit.py ./
 
 ENTRYPOINT [ "bash", "-c" ]
 CMD [ "uvicorn app:app --host 0.0.0.0 --port $APP_PORT --timeout-keep-alive $APP_TIMEOUT" ]

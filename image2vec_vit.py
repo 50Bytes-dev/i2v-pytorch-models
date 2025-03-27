@@ -6,6 +6,8 @@ import torch
 from PIL import Image
 from transformers import ViTImageProcessor, ViTModel
 
+from download_vit import MODEL_NAME
+
 hf_home = os.getenv("HF_HOME", None)
 if hf_home:
     os.makedirs(hf_home, exist_ok=True)
@@ -17,9 +19,6 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-
-# https://huggingface.co/SoBytes/vit-sadovod
-MODEL_NAME = "SoBytes/vit-sadovod"
 
 
 class Img2VecViT:
